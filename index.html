@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Chiffres Aléatoires - Madagascar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 50px;
+        }
+        .range-selector {
+            margin: 20px 0;
+        }
+        select, input {
+            padding: 8px;
+            margin: 0 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Générateur de Chiffres Aléatoires</h1>
+        
+        <div class="range-selector">
+            <label for="min">De:</label>
+            <input type="number" id="min" value="0" min="0">
+            
+            <label for="max">À:</label>
+            <input type="number" id="max" value="36" min="1">
+            
+            <label for="count">Nombre:</label>
+            <select id="count">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+        
+        <button onclick="generateNumbers()">Générer</button>
+        
+        <div id="result"></div>
+        
+        <div class="history">
+            <h3>Historique:</h3>
+            <div id="history"></div>
+        </div>
+    </div>
+
+    <script>
+        let history = [];
+        
+        function generateNumbers() {
+            const min = parseInt(document.getElementById('min').value);
+            const max = parseInt(document.getElementById('max').value);
+            const count = parseInt(document.getElementById('count').value);
+            
+            if (min >= max) {
+                alert("La valeur 'De' doit être inférieure à la valeur 'À'");
+                return;
+            }
+            
+            let results = [];
+            for (let i = 0; i < count; i++) {
+                // Algorithme de génération aléatoire cryptographiquement sécurisé
+                const array = new Uint32Array(1);
+                window.crypto.getRandomValues(array);
+                const random = array[0] / (0xFFFFFFFF + 1);
+                
+                const num = Math.floor(random * (max - min + 1)) + min;
+                results.push(num);
+            }
+            
+            document.getElementById('result').textContent = results.join(', ');
+            
+            // Ajouter à l'historique
+            history.unshift({
+                date: new Date().toLocaleString(),
+                numbers: results,
+                range: `${min}-${max}`
+            });
+            
+            // Mettre à jour l'affichage de l'historique
+            updateHistory();
+        }
+        
+        function updateHistory() {
+            const historyElement = document.getElementById('history');
+            historyElement.innerHTML = '';
+            
+            // Limiter à 10 entrées
+            const displayHistory = history.slice(0, 10);
+            
+            displayHistory.forEach(item => {
+                const entry = document.createElement('div');
+                entry.style.margin = '5px 0';
+                entry.style.padding = '5px';
+                entry.style.backgroundColor = '#eee';
+                entry.style.borderRadius = '5px';
+                entry.innerHTML = `
+                    <span style="color: #7f8c8d;">${item.date}</span> - 
+                    <strong>${item.numbers.join(', ')}</strong> 
+                    (Plage: ${item.range})
+                `;
+                historyElement.appendChild(entry);
+            });
+        }
+    </script>
+</body>
+</html>
